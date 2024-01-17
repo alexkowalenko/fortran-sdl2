@@ -4,6 +4,7 @@ env/
 build/
 dist/
 var/
+.vscode/*
 
 # Other stuff
 *.swp
