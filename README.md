@@ -1,5 +1,7 @@
 # fortran-sdl2
 
+Hacked version of fortran-sdl2 to remove GL and GLU as they are now not available on macOS Apple Silicon platforms.
+
 A collection of ISO C binding interfaces to
 [Simple DirectMedia Layer 2.0](https://www.libsdl.org/) (SDL 2.0), for
 2D and 3D game programming in Fortran. SDL versions tested against:
@@ -17,39 +19,12 @@ see [fortran-sdl2_gfx](https://github.com/freevryheid/fortran-sdl2_gfx).
 
 ## Build Instructions
 
-If not present already, install SDL 2.0 with development headers (and
-optionally: [SDL_image 2.0](https://www.libsdl.org/projects/SDL_image/),
-[SDL_mixer 2.0](https://www.libsdl.org/projects/SDL_mixer/), and/or
-[SDL_ttf 2.0](https://www.libsdl.org/projects/SDL_ttf/)). On FreeBSD, run:
+On macOS, use homebrew to install the SDL2 libraries.
 
-```
-# pkg install devel/sdl20 graphics/sdl2_image audio/sdl2_mixer graphics/sdl2_ttf
-```
+You will need to run the applications with a link flag to find the SDL libraries:
 
-Either use GNU/BSD make, [xmake](https://xmake.io/) to build *fortran-sdl2*, or
-the [Fortran Package Manager](https://github.com/fortran-lang/fpm) (fpm).
-
-### Make
-
-Run `make sdl2` to compile the static library `libsdl2.a`:
-
-```
-$ git clone --depth 1 https://github.com/interkosmos/fortran-sdl2
-$ cd fortran-sdl2/
-$ make sdl2
-```
-
-On Microsoft Windows, you have to set `LIBGL` and `LIBGLU`:
-
-```
-$ make all LIBGL=-lopengl32 LIBGLU=-lglu32
-```
-
-On macOS, replace `-lGL -lGLU` with `-framework OpenGL`. You can override the
-default compiler (`gfortran`) by passing the `FC` argument, for example:
-
-```
-$ make all FC=/opt/intel/bin/ifort
+```shell
+$ fpm run alpha --link-flag -L/opt/homebrew/lib
 ```
 
 Link your Fortran project with `libsdl2.a` and (optionally) `libsdl2_*.a`, or
@@ -62,22 +37,6 @@ simply with `libfortran-sdl2.a`:
 | SDL2_mixer        | `make sdl2_mixer`   | `libsdl2.a libsdl2_mixer.a -lSDL2 -lSDL2_mixer`                 |
 | SDL2_ttf          | `make sdl2_ttf`     | `libsdl2.a libsdl2_ttf.a -lSDL2 -lSDL2_ttf`                     |
 | *all*             | `make all`          | `libfortran-sdl2.a -lSDL2 -lSDL2_image -lSDL2_mixer -lSDL2_ttf` |
-
-### xmake
-
-Build all static libraries with:
-
-```
-$ xmake
-```
-
-Build a particular library with:
-
-```
-$ xmake build <name>
-```
-
-The default output directory is `build/`.
 
 ## Example
 
@@ -168,7 +127,7 @@ end program main
 
 To compile the source code with GNU Fortran, run:
 
-```
+```shell
 $ gfortran `sdl2-config --cflags` -o example example.f90 libsdl2.a `sdl2-config --libs`
 ```
 
@@ -183,9 +142,6 @@ Some demo applications can be found in `examples/`:
 * **events** polls SDL events (software renderer).
 * [**fire**](examples/fire.png) renders the [DOOM fire effect](http://fabiensanglard.net/doom_fire_psx/) (hardware renderer).
 * [**forest**](examples/forest.png) implements a cellular automaton, based on the [forest fire model](https://rosettacode.org/wiki/Forest_fire) (hardware renderer).
-* [**gl**](examples/gl.png) renders a triangle with OpenGL 1.3.
-* [**gl3d**](examples/gl3d.png) rotates textured cubes with OpenGL 1.3.
-* [**glsphere**](examples/glsphere.png) rotates the camera around GLU spheres.
 * [**image**](examples/image.png) loads and displays an image (software renderer).
 * **info** prints debug information to console (software renderer).
 * **log** prints log messages with `SDL_Log()` (software renderer).
@@ -201,21 +157,8 @@ Some demo applications can be found in `examples/`:
 
 Compile all examples with:
 
-```
-$ make examples
-```
-
-If you prefer xmake, build and run an example with:
-
-```
-$ xmake build <name>
-$ xmake run <name>
-```
-
-To compile all examples, simply run:
-
-```
-$ xmake build examples
+```shell
+$ fpm build ---link-flag -L/opt/homebrew/lib
 ```
 
 ## Compatibility
@@ -330,7 +273,7 @@ been renamed to `SDL_QUITEVENT` in Fortran to avoid conflict with interface
 Generate the source code documentation with
 [FORD](https://github.com/cmacmackin/ford). Add FORD with `pip`, for example:
 
-```
+```shell
 $ python3 -m venv virtual-environment/
 $ source virtual-environment/bin/activate
 $ python3 -m pip install ford
@@ -338,13 +281,13 @@ $ python3 -m pip install ford
 
 Or, instead, just install the package in your user directory:
 
-```
+```shell
 $ python3 -m pip install --user ford
 ```
 
 Then, run:
 
-```
+```shell
 $ ford project.md -d ./src
 ```
 
